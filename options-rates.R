@@ -62,6 +62,8 @@ random.walk.aggregated <- random.walk %>%
   group_by(day) %>%
   summarise(sd = sd(price)) %>%
   mutate(sd.plus = current.price + sd) %>%
-  mutate(sd.minus = current.price - sd)
+  mutate(sd.minus = current.price - sd) %>%
+  select(-sd) %>%
+  gather(bound, price, -day)
 
-plotly(random.walk.aggregated, x = ~day)
+plot_ly(random.walk.aggregated, x = ~day, y = ~price, color = ~bound, type = 'scatter', mode = 'lines')
