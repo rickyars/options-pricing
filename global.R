@@ -3,8 +3,8 @@ library(shiny)
 library(fOptions)
 library(quantmod)
 library(plotly)
-library(tidyverse)
 library(sde)
+library(tidyverse)
 
 source("R/bsm-cones.R")
 

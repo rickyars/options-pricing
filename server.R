@@ -37,8 +37,12 @@ function(input, output, session) {
   })
   
   output$bsm.cone <- renderPlotly({
-    plot_ly(data = price.history(), x = ~date, y = ~price, type = 'scatter', mode = 'lines') %>%
-      add_trace(data = trajectories(), x = ~date, y = ~price, color = ~bound)
+    # need to add today to the historical
+    history <- price.history() %>%
+      bind_rows(data_frame(date = Sys.Date(), price = quote()$Last))
+    
+    plot_ly(data = history, x = ~date, y = ~price, name = "past", type = 'scatter', mode = 'lines') %>%
+      add_trace(data = trajectories(), x = ~date, y = ~price, color = ~bound, name = "projection")
   })
   
 }

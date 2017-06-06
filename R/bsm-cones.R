@@ -26,10 +26,10 @@ SimulateTrajectories <- function(quote, r, sigma, expiration, n)
 {
   # parameters to the GMB function
   current.price <- quote$Last
-  t <- as.numeric(difftime(as.Date(expiration), Sys.Date()))
+  t <- as.numeric(difftime(as.Date(expiration), Sys.Date())) / 365
   
   # use GBM to simulate the trajectories
-  random.walk <- replicate(n, GBM(current.price, r, sigma, t / 365, t), FALSE) %>%
+  random.walk <- replicate(n, GBM(current.price, r, sigma, t, t * 365), FALSE) %>%
     data_frame(price = .) %>%
     mutate(iterate = row_number()) %>%
     unnest() %>%
@@ -57,8 +57,6 @@ GetPriceHistory <- function(ticker, days)
 {
   historical <- getSymbols(ticker, from = Sys.Date() - days, auto.assign = FALSE)
   historical <- data_frame(date = time(historical), price = drop(coredata(Cl(historical))))
-  historical <- historical %>%
-    bind_rows(data_frame(date = Sys.Date(), price = quote$Last))
   
   # return
   return(historical)
