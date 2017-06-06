@@ -58,3 +58,10 @@ random.walk <- replicate(n, GBM(current.price, r, sigma, t, t * 365), FALSE) %>%
 library(plotly)
 plot_ly(random.walk, x = ~day, y = ~price, type = 'scatter', mode = 'lines')
 
+random.walk.aggregated <- random.walk %>%
+  group_by(day) %>%
+  summarise(sd = sd(price)) %>%
+  mutate(sd.plus = current.price + sd) %>%
+  mutate(sd.minus = current.price - sd)
+
+plotly(random.walk.aggregated, x = ~day)
