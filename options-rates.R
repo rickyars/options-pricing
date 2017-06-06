@@ -5,31 +5,56 @@ library(sde)
 
 ticker <- "AAPL"
 expiration <- "2018-01-19"
+option.type <- "Call"
+r <- 0.03
+b <- 0.03 
+n <- 100
+
+# get the current stock price
 quote <- getQuote(ticker)
+
+# get the option chains for the given expiration
+type <- NULL
 option.chain <- getOptionChain(ticker, Exp = expiration)
+if (option.type == "Call") 
+{
+  type <- "c"
+  option.chain <- option.chain$calls
+}
 
-# we need some info to compute the volatility
-# we need to get this automatically from the option chain info or let the user input this
-# probably build a Shiny app that pull the option chain and let's the user input
+if (option.type == "Put") 
+{
+  type <- "p"
+  option.chain <- option.chain$puts
+}
 
-S <- quote$Last
-price <- 10.75
-X <- 155
+# get historical data
+historical <- getSymbols(ticker, from = Sys.Date() - 30, auto.assign = FALSE)
+
+# 
+# compute volatility ----------------------------------------------------------
+
+current.price <- quote$Last
+option.chain <- option.chain %>%
+  mutate(diff = abs(Strike - current.price)) %>%
+  filter(diff == min(diff)) 
+option.price <- option.chain$Last
+strike.price <- option.chain$Strike
 t <- as.numeric(difftime(as.Date(expiration), Sys.Date())) / 365
 
 # compute volatility
-GBSVolatility(price = price, TypeFlag = "c", S = S, X = X, Time = t, r = 0.03, b = 0.03)
+sigma <- GBSVolatility(option.price, type, current.price, strike.price, t, r, b)
 
-# simulate prices
+#
+# simulate prices -------------------------------------------------------------
 
-dt=T/n; t=seq(0,T,by=dt)
-X=matrix(rep(0,length(t)*nt), nrow=nt)
+random.walk <- replicate(n, GBM(current.price, r, sigma, t, t * 365), FALSE) %>%
+  data_frame(price = .) %>%
+  mutate(iterate = row_number()) %>%
+  unnest() %>%
+  group_by(iterate) %>%
+  mutate(day = row_number())
 
+library(plotly)
+plot_ly(random.walk, x = ~day, y = ~price, type = 'scatter', mode = 'lines')
 
-for (i in 1:nt) {X[i,]= GBM(x=P0,r=mu,sigma=sigma,T=T,N=n)}
-
-##Plot
-ymax=max(X); ymin=min(X) #bounds for simulated prices
-plot(t,X[1,],t='l',ylim=c(ymin, ymax), col=1,
-     ylab="Price P(t)",xlab="time t")
-for(i in 2:nt){lines(t,X[i,], t='l',ylim=c(ymin, ymax),col=i)}
