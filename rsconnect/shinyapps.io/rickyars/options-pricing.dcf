@@ -3,6 +3,8 @@ title:
 account: rickyars
 server: shinyapps.io
 appId: 186581
-bundleId: 854721
+bundleId: 859297
 url: https://rickyars.shinyapps.io/options-pricing/
-when: 1496722191.90421
+when: 1496979920.37325
+asMultiple: FALSE
+asStatic: FALSE
