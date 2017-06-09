@@ -2,10 +2,8 @@ GetVolatility <- function(quote, strike.price, option.chain, expiration, option.
 {
   # parameters to the GBSVolatility function
   option.chain <- option.chain %>%
-    mutate(diff = abs(Strike - current.price)) %>%
-    filter(diff == min(diff)) 
+    filter(Strike == strike.price)
   option.price <- option.chain$Last
-  strike.price <- option.chain$Strike
   t <- as.numeric(difftime(as.Date(expiration), Sys.Date())) / 365
   
   # compute volatility
