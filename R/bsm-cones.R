@@ -1,7 +1,6 @@
-GetVolatility <- function(quote, option.chain, expiration, option.type, r, b)
+GetVolatility <- function(quote, strike.price, option.chain, expiration, option.type, r, b)
 {
   # parameters to the GBSVolatility function
-  current.price <- quote$Last
   option.chain <- option.chain %>%
     mutate(diff = abs(Strike - current.price)) %>%
     filter(diff == min(diff)) 
@@ -12,13 +11,13 @@ GetVolatility <- function(quote, option.chain, expiration, option.type, r, b)
   # compute volatility
   if (option.type == "Call") 
   {
-    return(GBSVolatility(option.price, "c", current.price, strike.price, t, r, b))
+    return(GBSVolatility(option.price, "c", quote$Last, strike.price, t, r, b))
   }
   
   # compute volatility
   if (option.type == "Put") 
   {
-    return(GBSVolatility(option.price, "p", current.price, strike.price, t, r, b))
+    return(GBSVolatility(option.price, "p", quote$Last, strike.price, t, r, b))
   }
 }
 
