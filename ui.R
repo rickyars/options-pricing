@@ -12,7 +12,9 @@ pageWithSidebar(
     actionButton("run", "Run")
   ),
   mainPanel(
-    plotlyOutput("plot.bsm.cone"),
-    dataTableOutput("tbl.options.chain")
+    tabsetPanel(
+      tabPanel("Plot", plotlyOutput("plot.bsm.cone")),
+      tabPanel("Option Chain", dataTableOutput("tbl.options.chain"))
+    )
   )
 )
